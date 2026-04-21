@@ -6,7 +6,6 @@ import com.listener.app.client.WhisperClient;
 import com.listener.app.config.DlqProperties;
 import com.listener.app.config.GitHubProperties;
 import com.listener.app.dto.DlqMetadata;
-import com.listener.app.dto.GitHubFileResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
