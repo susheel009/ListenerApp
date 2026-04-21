@@ -55,7 +55,7 @@ public class WhisperClient {
             )
     )
     public String transcribe(byte[] audioBytes, String originalFilename) {
-        log.info("Sending audio to Whisper API — file: {}, size: {} bytes",
+        log.debug("Sending audio to Whisper API — file: {}, size: {} bytes",
                 originalFilename, audioBytes.length);
 
         MultipartBodyBuilder bodyBuilder = new MultipartBodyBuilder();
@@ -80,16 +80,16 @@ public class WhisperClient {
                     .bodyToMono(String.class)
                     .block();
 
-            log.info("Whisper transcription complete — {} characters",
+            log.debug("Whisper transcription complete — {} characters",
                     transcript != null ? transcript.length() : 0);
             return transcript != null ? transcript.trim() : "";
 
         } catch (WebClientResponseException ex) {
-            log.error("Whisper API returned {}: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
+            log.debug("Whisper API returned {}: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
             throw new WhisperTranscriptionException(
                     "Whisper API returned " + ex.getStatusCode() + ": " + ex.getResponseBodyAsString(), ex);
         } catch (Exception ex) {
-            log.error("Whisper API call failed: {}", ex.getMessage(), ex);
+            log.debug("Whisper API call failed: {}", ex.getMessage(), ex);
             throw new WhisperTranscriptionException(
                     "Whisper API call failed: " + ex.getMessage(), ex);
         }
@@ -102,7 +102,7 @@ public class WhisperClient {
     @Recover
     public String recoverTranscribe(WhisperTranscriptionException ex,
                                     byte[] audioBytes, String originalFilename) {
-        log.error("Whisper permanently unreachable after all retries — file: {}, size: {} bytes",
+        log.debug("Whisper retries exhausted — file: {}, size: {} bytes",
                 originalFilename, audioBytes.length);
         throw ex;
     }

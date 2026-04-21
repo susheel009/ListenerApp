@@ -56,7 +56,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AudioProcessingException.class)
     public ResponseEntity<Map<String, String>> handleAudioProcessing(AudioProcessingException ex) {
-        log.error("Audio processing failed", ex);
+        log.warn("Audio processing failed: {}", ex.getMessage());
         Map<String, String> body = new LinkedHashMap<>();
         body.put("error", "Failed to process audio file");
         body.put("detail", ex.getMessage());
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(WhisperTranscriptionException.class)
     public ResponseEntity<Map<String, String>> handleWhisperFailure(WhisperTranscriptionException ex) {
-        log.error("Whisper transcription failed", ex);
+        log.warn("Whisper transcription failed → 502: {}", ex.getMessage());
         Map<String, String> body = new LinkedHashMap<>();
         body.put("error", "Whisper transcription failed");
         body.put("detail", ex.getMessage());
@@ -78,7 +78,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(GitHubApiException.class)
     public ResponseEntity<Map<String, String>> handleGitHubFailure(GitHubApiException ex) {
-        log.error("GitHub API call failed", ex);
+        log.warn("GitHub API call failed → 502: {}", ex.getMessage());
         Map<String, String> body = new LinkedHashMap<>();
         body.put("error", "GitHub commit failed");
         body.put("detail", ex.getMessage());

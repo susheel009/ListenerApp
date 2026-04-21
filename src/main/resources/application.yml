@@ -14,19 +14,19 @@ server:
 # or set the OPENAI_API_KEY environment variable.
 # ──────────────────────────────────────────────────
 whisper:
-  api-key: YOUR_OPENAI_API_KEY_HERE
+  api-key: ${OPENAI_API_KEY}
   url: https://api.openai.com/v1/audio/transcriptions
-  model: whisper-1
+  model: gpt-4o-transcribe
 
 # ──────────────────────────────────────────────────
 # GitHub — replace each placeholder below
 # or set the corresponding environment variables.
 # ──────────────────────────────────────────────────
 github:
-  token: YOUR_GITHUB_TOKEN_HERE
-  owner: YOUR_GITHUB_USERNAME_HERE
-  repo: YOUR_GITHUB_REPO_NAME_HERE
-  branch: main
+  token: ${GITHUB_TOKEN}
+  owner: susheel009
+  repo: Susheel_data
+  branch: develop
   inbox-path: inbox
 
 # ──────────────────────────────────────────────────

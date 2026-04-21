@@ -71,7 +71,8 @@ public class AudioCompressor {
 
             // 1. Probe duration
             double durationSeconds = probeDuration(inputFile);
-            log.info("Audio duration: {:.1f}s ({:.1f} min)", durationSeconds, durationSeconds / 60);
+            log.info("Audio duration: {}s ({} min)",
+                    String.format("%.1f", durationSeconds), String.format("%.1f", durationSeconds / 60));
 
             // 2. Calculate smart bitrate
             int bitrateKbps = calculateSmartBitrate(durationSeconds);

@@ -101,7 +101,7 @@ public class GitHubClient {
     @Recover
     public String recoverAppendToFile(GitHubApiException ex, String path,
                                       String contentToAppend, String commitMessage) {
-        log.error("GitHub appendToFile permanently failed after all retries — path: {}", path);
+        log.debug("GitHub appendToFile retries exhausted — path: {}", path);
         throw ex;
     }
 
@@ -115,27 +115,29 @@ public class GitHubClient {
      * @throws GitHubApiException for any non-404 error
      */
     public GitHubFileResponse getFile(String path) {
-        log.debug("GitHub GET contents: {}", path);
-        String uri = buildContentsUri(path);
+        log.debug("GitHub GET contents: {} (ref: {})", path, properties.getBranch());
 
         try {
             return webClient.get()
-                    .uri(uri)
+                    .uri(uriBuilder -> uriBuilder
+                            .path(buildContentsUri(path))
+                            .queryParam("ref", properties.getBranch())
+                            .build())
                     .retrieve()
                     .bodyToMono(GitHubFileResponse.class)
                     .block();
 
         } catch (WebClientResponseException ex) {
             if (ex.getStatusCode().isSameCodeAs(HttpStatusCode.valueOf(404))) {
-                log.info("File not found on GitHub (will create new): {}", path);
+                log.debug("File not found on GitHub (will create new): {}", path);
                 return null;
             }
-            log.error("GitHub GET failed with {}: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
+            log.debug("GitHub GET failed with {}: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
             throw new GitHubApiException(
                     "GitHub GET failed with " + ex.getStatusCode() + ": " + ex.getResponseBodyAsString(),
                     null, ex);
         } catch (Exception ex) {
-            log.error("GitHub GET failed: {}", ex.getMessage(), ex);
+            log.debug("GitHub GET failed: {}", ex.getMessage(), ex);
             throw new GitHubApiException("GitHub GET failed: " + ex.getMessage(), null, ex);
         }
     }
@@ -180,12 +182,12 @@ public class GitHubClient {
             return commitSha;
 
         } catch (WebClientResponseException ex) {
-            log.error("GitHub PUT failed with {}: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
+            log.debug("GitHub PUT failed with {}: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
             throw new GitHubApiException(
                     "GitHub PUT failed with " + ex.getStatusCode() + ": " + ex.getResponseBodyAsString(),
                     null, ex);
         } catch (Exception ex) {
-            log.error("GitHub PUT failed: {}", ex.getMessage(), ex);
+            log.debug("GitHub PUT failed: {}", ex.getMessage(), ex);
             throw new GitHubApiException("GitHub PUT failed: " + ex.getMessage(), null, ex);
         }
     }
