@@ -49,14 +49,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleMaxUploadSize(MaxUploadSizeExceededException ex) {
         log.warn("Upload exceeds max size: {}", ex.getMessage());
         return buildResponse(HttpStatus.PAYLOAD_TOO_LARGE,
-                "File exceeds maximum upload size of 50 MB");
+                "File exceeds maximum upload size configured");
     }
 
     // ── 500 — audio processing / FFmpeg failure ─────────────────────────
 
     @ExceptionHandler(AudioProcessingException.class)
     public ResponseEntity<Map<String, String>> handleAudioProcessing(AudioProcessingException ex) {
-        log.error("Audio processing failed", ex);
+        log.warn("Audio processing failed: {}", ex.getMessage());
         Map<String, String> body = new LinkedHashMap<>();
         body.put("error", "Failed to process audio file");
         body.put("detail", ex.getMessage());
@@ -65,12 +65,11 @@ public class GlobalExceptionHandler {
 
     // ── 502 — Whisper API failure ───────────────────────────────────────
 
-    @ExceptionHandler(WhisperTranscriptionException.class)
-    public ResponseEntity<Map<String, String>> handleWhisperFailure(WhisperTranscriptionException ex) {
-        log.error("Whisper transcription failed", ex);
+    @ExceptionHandler(TranscriptionException.class)
+    public ResponseEntity<Map<String, String>> handleTranscriptionFailure(TranscriptionException ex) {
+        log.warn("Transcription failed → 502: {}", ex.getMessage());
         Map<String, String> body = new LinkedHashMap<>();
-        body.put("error", "Whisper transcription failed");
-        body.put("detail", ex.getMessage());
+        body.put("error", "Transcription API failed");
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(body);
     }
 
@@ -78,7 +77,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(GitHubApiException.class)
     public ResponseEntity<Map<String, String>> handleGitHubFailure(GitHubApiException ex) {
-        log.error("GitHub API call failed", ex);
+        log.warn("GitHub API call failed → 502: {}", ex.getMessage());
         Map<String, String> body = new LinkedHashMap<>();
         body.put("error", "GitHub commit failed");
         body.put("detail", ex.getMessage());
@@ -86,6 +85,24 @@ public class GlobalExceptionHandler {
             body.put("transcript", ex.getTranscript());
         }
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(body);
+    }
+
+    // ── 400 — malformed timestamp ───────────────────────────────────────
+
+    @ExceptionHandler(java.time.format.DateTimeParseException.class)
+    public ResponseEntity<Map<String, String>> handleDateTimeParseException(java.time.format.DateTimeParseException ex) {
+        log.warn("Invalid timestamp: {}", ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, "Invalid timestamp format. Please use ISO 8601 (e.g., 2026-04-20T14:32:00Z)");
+    }
+
+    // ── 500 — Generic Catch All ─────────────────────────────────────────
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, String>> handleGenericException(Exception ex) {
+        log.error("Unhandled server error", ex);
+        Map<String, String> body = new LinkedHashMap<>();
+        body.put("error", "Internal server error");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
     // ── helper ──────────────────────────────────────────────────────────

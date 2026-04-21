@@ -10,30 +10,30 @@ server:
   port: 8080
 
 # ──────────────────────────────────────────────────
-# OpenAI Whisper — replace the placeholder below
+# External Transcription API — replace the placeholder below
 # or set the OPENAI_API_KEY environment variable.
 # ──────────────────────────────────────────────────
-whisper:
-  api-key: YOUR_OPENAI_API_KEY_HERE
+transcription:
+  api-key: ${OPENAI_API_KEY:}
   url: https://api.openai.com/v1/audio/transcriptions
-  model: whisper-1
+  model: gpt-4o-transcribe
 
 # ──────────────────────────────────────────────────
 # GitHub — replace each placeholder below
 # or set the corresponding environment variables.
 # ──────────────────────────────────────────────────
 github:
-  token: YOUR_GITHUB_TOKEN_HERE
-  owner: YOUR_GITHUB_USERNAME_HERE
-  repo: YOUR_GITHUB_REPO_NAME_HERE
-  branch: main
+  token: ${GITHUB_TOKEN:}
+  owner: susheel009
+  repo: Susheel_data
+  branch: develop
   inbox-path: inbox
 
 # ──────────────────────────────────────────────────
 # Audio compression (requires FFmpeg)
 # ──────────────────────────────────────────────────
 audio:
-  whisper-max-bytes: 25000000    # 25 MB — Whisper hard limit
+  transcription-max-bytes: 25000000    # 25 MB — API hard limit
   min-bitrate-kbps: 32           # quality floor — below this, audio is too degraded
   max-bitrate-kbps: 128          # cap — higher is unnecessary for voice
   ffmpeg-path: ffmpeg            # system PATH or absolute path to binary
@@ -48,10 +48,19 @@ retry:
 
 # ──────────────────────────────────────────────────
 # Dead Letter Queue
-#   whisper-unreachable/ — audio stored for later transcription
+#   transcription-unreachable/ — audio stored for later transcription
 #   github-unreachable/  — transcript stored for later commit
 # ──────────────────────────────────────────────────
 dlq:
   base-path: ./dlq
   retry-interval-ms: 300000      # 5 minutes
   max-retry-attempts: 5
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+  endpoint:
+    health:
+      show-details: always

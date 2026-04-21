@@ -11,8 +11,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "audio")
 public class AudioProperties {
 
-    /** Whisper API hard limit in bytes (25 MB). */
-    private long whisperMaxBytes = 25_000_000;
+    /** Whisper or general model hard limit before compression is needed (e.g. 25000000 bytes) */
+    private long transcriptionMaxBytes = 25000000;
 
     /** Minimum bitrate in kbps — quality floor for compression. */
     private int minBitrateKbps = 32;
@@ -22,4 +22,7 @@ public class AudioProperties {
 
     /** Path to the FFmpeg binary (or just "ffmpeg" if on system PATH). */
     private String ffmpegPath = "ffmpeg";
+
+    /** Temporary directory for uploading and compressing audio. */
+    private String tempDirPath = System.getProperty("java.io.tmpdir");
 }
