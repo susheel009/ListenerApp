@@ -7,6 +7,7 @@ import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.listener.app.config.AudioProperties;
+import com.listener.app.config.CaptureProperties;
 import com.listener.app.config.DlqProperties;
 import com.listener.app.config.GitHubProperties;
 import com.listener.app.config.RetryProperties;
@@ -20,7 +21,8 @@ import com.listener.app.config.TranscriptionProperties;
         GitHubProperties.class,
         AudioProperties.class,
         RetryProperties.class,
-        DlqProperties.class
+        DlqProperties.class,
+        CaptureProperties.class
 })
 public class ListenerAppApplication {
 

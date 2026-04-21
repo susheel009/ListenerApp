@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
+import java.nio.file.InvalidPathException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -33,6 +34,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleUnsupportedFormat(UnsupportedAudioFormatException ex) {
         log.warn("Unsupported audio format: {}", ex.getMessage());
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    // ── 400 — malformed timestamp ───────────────────────────────────────
+
+    @ExceptionHandler(java.time.format.DateTimeParseException.class)
+    public ResponseEntity<Map<String, String>> handleDateTimeParseException(java.time.format.DateTimeParseException ex) {
+        log.warn("Invalid timestamp: {}", ex.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST,
+                "Invalid timestamp format. Please use ISO 8601 (e.g., 2026-04-20T14:32:00Z)");
+    }
+
+    // ── 400 — invalid path characters in filename (Windows rejects <>:"|?*) ─
+
+    @ExceptionHandler(InvalidPathException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidPath(InvalidPathException ex) {
+        log.warn("Invalid filename characters: {}", ex.getInput());
+        return buildResponse(HttpStatus.BAD_REQUEST,
+                "Filename contains invalid characters: " + ex.getReason());
     }
 
     // ── 413 — audio too large (even after compression) ──────────────────
@@ -63,7 +82,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
-    // ── 502 — Whisper API failure ───────────────────────────────────────
+    // ── 502 — Transcription API failure ─────────────────────────────────
 
     @ExceptionHandler(TranscriptionException.class)
     public ResponseEntity<Map<String, String>> handleTranscriptionFailure(TranscriptionException ex) {
@@ -87,12 +106,23 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(body);
     }
 
-    // ── 400 — malformed timestamp ───────────────────────────────────────
+    // ── 502 — Non-retryable upstream rejection (4xx from Whisper/GitHub) ─
 
-    @ExceptionHandler(java.time.format.DateTimeParseException.class)
-    public ResponseEntity<Map<String, String>> handleDateTimeParseException(java.time.format.DateTimeParseException ex) {
-        log.warn("Invalid timestamp: {}", ex.getMessage());
-        return buildResponse(HttpStatus.BAD_REQUEST, "Invalid timestamp format. Please use ISO 8601 (e.g., 2026-04-20T14:32:00Z)");
+    @ExceptionHandler(NonRetryableUpstreamException.class)
+    public ResponseEntity<Map<String, String>> handleNonRetryableUpstream(NonRetryableUpstreamException ex) {
+        log.warn("Non-retryable upstream error → 502: {}", ex.getMessage());
+        Map<String, String> body = new LinkedHashMap<>();
+        body.put("error", "Upstream API rejected the request");
+        body.put("detail", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(body);
+    }
+
+    // ── 503 — Service unavailable (lock contention timeout) ─────────────
+
+    @ExceptionHandler(ServiceUnavailableException.class)
+    public ResponseEntity<Map<String, String>> handleServiceUnavailable(ServiceUnavailableException ex) {
+        log.warn("Service unavailable: {}", ex.getMessage());
+        return buildResponse(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
     }
 
     // ── 500 — Generic Catch All ─────────────────────────────────────────

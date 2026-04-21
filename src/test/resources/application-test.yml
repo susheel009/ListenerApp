@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: listener-app-test
+  task:
+    scheduling:
+      pool:
+        size: 2
+
+# Dummy values for @Validated @NotBlank properties
+transcription:
+  api-key: test-api-key
+  url: http://localhost:9999/v1/audio/transcriptions
+  model: test-model
+
+github:
+  token: test-token
+  owner: test-owner
+  repo: test-repo
+  branch: test-branch
+  inbox-path: test-inbox
+
+audio:
+  transcription-max-bytes: 25000000
+  ffmpeg-path: ffmpeg
+
+capture:
+  max-concurrent: 5
+
+retry:
+  max-attempts: 1
+  initial-delay-ms: 100
+  multiplier: 1.0
+
+dlq:
+  base-path: ./build/test-dlq
+  retry-interval-ms: 999999999
+  max-retry-attempts: 3
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never

@@ -11,7 +11,7 @@ import lombok.Value;
 @Builder
 public class CaptureResponse {
 
-    public enum Status { CAPTURED, FAILED, QUEUED }
+    public enum Status { CAPTURED }
 
     Status status;
     String timestamp;
