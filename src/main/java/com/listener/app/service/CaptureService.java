@@ -58,8 +58,11 @@ public class CaptureService {
      */
     public CaptureResponse capture(MultipartFile audio, Instant timestamp) {
 
-        // 1. Validate file extension
+        // 1. Validate file extension and sanitize path traversal
         String originalFilename = audio.getOriginalFilename();
+        if (originalFilename != null) {
+            originalFilename = java.nio.file.Path.of(originalFilename).getFileName().toString();
+        }
         validateAudioFormat(originalFilename);
 
         // 2. Read bytes

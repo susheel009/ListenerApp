@@ -6,20 +6,17 @@ import com.listener.app.client.WhisperClient;
 import com.listener.app.config.DlqProperties;
 import com.listener.app.config.GitHubProperties;
 import com.listener.app.dto.DlqMetadata;
-import com.listener.app.dto.GitHubFileResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import java.util.stream.Stream;
 
 /**
