@@ -1,0 +1,24 @@
+# === Build output ===
+target/
+
+# === IDE files ===
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# === OS junk ===
+.DS_Store
+Thumbs.db
+
+# === Logs ===
+*.log
+
+# === Environment / secrets ===
+.env
+application-local.yml
+
+# === Dead Letter Queue (local storage) ===
+dlq/
