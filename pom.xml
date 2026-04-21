@@ -15,7 +15,7 @@
     <artifactId>listener-app</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>ListenerApp</name>
-    <description>Voice-to-Markdown capture service — transcribes audio via Whisper and commits to GitHub</description>
+    <description>Voice-to-Markdown capture service — transcribes audio via external API and commits to GitHub</description>
 
     <properties>
         <java.version>21</java.version>
@@ -38,6 +38,18 @@
         <dependency>
             <groupId>org.springframework.retry</groupId>
             <artifactId>spring-retry</artifactId>
+        </dependency>
+
+        <!-- Validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- Actuator for health checks and metrics -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
         <!-- AOP — required by spring-retry for @Retryable proxy weaving -->
@@ -77,5 +89,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

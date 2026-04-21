@@ -10,13 +10,13 @@ import com.listener.app.config.AudioProperties;
 import com.listener.app.config.DlqProperties;
 import com.listener.app.config.GitHubProperties;
 import com.listener.app.config.RetryProperties;
-import com.listener.app.config.WhisperProperties;
+import com.listener.app.config.TranscriptionProperties;
 
 @SpringBootApplication
 @EnableRetry
 @EnableScheduling
 @EnableConfigurationProperties({
-        WhisperProperties.class,
+        TranscriptionProperties.class,
         GitHubProperties.class,
         AudioProperties.class,
         RetryProperties.class,
