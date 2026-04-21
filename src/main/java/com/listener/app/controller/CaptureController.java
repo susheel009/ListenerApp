@@ -37,8 +37,9 @@ public class CaptureController {
             @RequestParam("audio") MultipartFile audio,
             @RequestParam(value = "timestamp", required = false) String timestamp) {
 
-        log.info("POST /capture — file: {}, size: {} bytes",
-                audio.getOriginalFilename(), audio.getSize());
+        // Sanitize filename before logging to prevent log injection (#35)
+        String safeLogName = sanitizeForLog(audio.getOriginalFilename());
+        log.info("POST /capture — file: {}, size: {} bytes", safeLogName, audio.getSize());
 
         Instant ts = (timestamp != null && !timestamp.isBlank())
                 ? Instant.parse(timestamp)
@@ -46,5 +47,14 @@ public class CaptureController {
 
         CaptureResponse response = captureService.capture(audio, ts);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Strips newlines and carriage returns from a filename to prevent log injection.
+     * Most logging frameworks escape these by default, but defense-in-depth is cheap.
+     */
+    private static String sanitizeForLog(String input) {
+        if (input == null) return "null";
+        return input.replace("\n", "_").replace("\r", "_");
     }
 }
